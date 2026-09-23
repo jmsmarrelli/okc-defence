@@ -1,0 +1,5 @@
+component,label,pairs,year_over_year_r,sd
+opp_two_vs_league,Opponent two-point percentage,624,0.5815,0.0166
+opp_three_vs_league,Opponent three-point percentage,624,0.1884,0.0133
+from_twos,Conversion denied on twos,624,0.5595,2.0736
+from_threes,Conversion denied on threes,624,0.1864,1.1017

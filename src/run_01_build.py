@@ -4,7 +4,7 @@
 
 For every season file: attach the defending team to every attempt, collapse the
 zone labels to the five that mean the same thing across the sample, and total
-attempts and points by zone for each team on offense and on defense.
+attempts and points by zone for each team on offence and on defence.
 
 Writes data/processed/profiles.csv, data/processed/games.csv,
 output/league_zone_value.csv and output/coverage.csv.

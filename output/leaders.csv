@@ -1,4 +1,4 @@
-season,team,att,pts,exp_pts,league_pps,games,pps,expected_pps,location,conversion,total,att_per_game,own_att_per_game,att_diff,pts_from_shots,pts_from_attempts,denied,rank_location,rank_conversion,rank_total,rank_att_diff,rank_denied
+season,team,att,pts,exp_pts,league_pps,games,pps,expected_pps,location,conversion,total,att_per_game,own_att_per_game,att_diff,pts_from_shots,pts_from_attempts,net_fg_edge,rank_location,rank_conversion,rank_total,rank_att_diff,rank_net_fg_edge
 2025,OKC,7098,7319,7700.4364,1.0899,82,1.0311,1.0849,-0.5025,-5.3739,-5.8763,86.561,92.4512,5.8902,-5.0866,-6.4198,11.5064,9.0,1.0,1.0,1.0,1.0
 2010,MIL,6316,6169,6319.1962,1.0056,82,0.9767,1.0005,-0.5049,-2.378,-2.8829,77.0244,84.9512,7.9268,-2.2206,-7.9709,10.1914,12.0,9.0,8.0,1.0,1.0
 2025,HOU,7213,7651,7827.72,1.0899,82,1.0607,1.0852,-0.4675,-2.45,-2.9175,87.9634,92.9634,5.0,-2.5664,-5.4495,8.0158,10.0,4.0,4.0,2.0,2.0

@@ -1,4 +1,4 @@
-season,team,att,pts,exp_pts,league_pps,games,pps,expected_pps,location,conversion,total,att_per_game,own_att_per_game,att_diff,pts_from_shots,pts_from_attempts,denied,rank_location,rank_conversion,rank_total,rank_att_diff,rank_denied
+season,team,att,pts,exp_pts,league_pps,games,pps,expected_pps,location,conversion,total,att_per_game,own_att_per_game,att_diff,pts_from_shots,pts_from_attempts,net_fg_edge,rank_location,rank_conversion,rank_total,rank_att_diff,rank_net_fg_edge
 2009,OKC,6772,6981,6879.07888,1.00379,82,1.03086,1.01581,1.20204,1.50504,2.70707,82.58537,81.53659,-1.04878,2.23565,1.05276,-3.2884,27.0,22.0,25.0,21.0,24.0
 2010,OKC,6683,6489,6793.48355,1.00556,82,0.97097,1.01653,1.09769,-4.55609,-3.4584,81.5,80.59756,-0.90244,-2.8186,0.90745,1.91115,28.0,1.0,4.0,22.0,8.0
 2011,OKC,6782,6725,6825.36498,1.0007,82,0.9916,1.00639,0.5695,-1.47987,-0.91037,82.70732,80.32927,-2.37805,-0.75294,2.37971,-1.62677,21.0,9.0,11.0,26.0,24.0

@@ -1,4 +1,4 @@
-season,team,att,pts,exp_pts,league_pps,games,pps,expected_pps,location,conversion,total,att_per_game,own_att_per_game,att_diff,pts_from_shots,pts_from_attempts,denied,rank_location,rank_conversion,rank_total,rank_att_diff,rank_denied
+season,team,att,pts,exp_pts,league_pps,games,pps,expected_pps,location,conversion,total,att_per_game,own_att_per_game,att_diff,pts_from_shots,pts_from_attempts,net_fg_edge,rank_location,rank_conversion,rank_total,rank_att_diff,rank_net_fg_edge
 2004,ATL,6703,6406,6402.08271,0.94559,82,0.95569,0.95511,0.95149,0.05844,1.00993,81.7439,79.53659,-2.20732,0.82556,2.08722,-2.91278,25.0,15.0,18.0,26.0,23.0
 2004,BOS,6598,6337,6301.08689,0.94559,82,0.96044,0.955,0.94073,0.5443,1.48504,80.46341,77.92683,-2.53659,1.19491,2.39858,-3.59349,24.0,17.0,19.0,28.0,25.0
 2004,CHI,6581,6200,6242.15029,0.94559,82,0.94211,0.94851,0.29187,-0.64048,-0.34861,80.2561,81.79268,1.53659,-0.27978,-1.45298,1.73277,15.0,12.0,13.0,6.0,11.0

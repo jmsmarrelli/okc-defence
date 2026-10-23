@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Method notes</title>
-<meta name="description" content="What the two channels are, why the attempt differential is allowed to stand in for a turnover, and how much of any of it survives to next season.">
+<title>Method and revision notes</title>
+<meta name="description" content="Oklahoma City&#x27;s 2024–25 shot-file results combine low opponent scoring per attempt with more field-goal attempts than its opponents. Those are useful components to describe, but th">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
 <style>
 :root{
@@ -99,137 +99,28 @@ figure img{display:block;width:100%;height:auto;border:1px solid var(--rule);bor
 </style>
 </head>
 <body>
-<header class="bar"><div class="wrap"><span class="slug">okc-defence</span><nav><a href="../index.html">findings</a><a href="https://github.com/jmsmarrelli/okc-defence">repository</a><a href="https://jmsmarrelli.github.io/basketball-analytics/">all projects</a></nav></div></header>
+<header class="bar"><div class="wrap"><span class="slug">okc-defence</span><nav><a href="../index.html">findings</a></nav></div></header>
 <main><div class="wrap">
-<h1>Method notes</h1>
-<p>What the two channels are, why the attempt differential is allowed to stand in
-for a turnover, and how much of any of it survives to next season.</p>
-<h2>The decomposition</h2>
-<p>Every attempt a team faced is labeled with one of five zones. Against that
-season's league-average points per attempt in each zone, the points a team
-allowed per shot split in two:</p>
-<pre><code>points allowed per shot  -  league average
-    = (what their opponents' locations were worth at league rates)   &lt;- location
-    + (what their opponents actually scored, minus that)             &lt;- conversion
-</code></pre>
-<p>Multiplied by 100 it reads as points per hundred attempts faced. Negative is
-good defense in both terms and in their sum, throughout.</p>
-<p><strong>League rates are re-estimated every season.</strong> A corner three was worth 1.16
-points in 2024-25 and 1.09 in 2004-05, and a decomposition run against a pooled
-rate would price two decades of rule changes and shot-selection change as
-defense.</p>
-<p><strong>Five zones, not coordinates.</strong> The raw files have two defects that make finer
-descriptions unusable across the sample: the action-type vocabulary was rewritten
-between 2007 and 2009, and the shot coordinates were recorded differently before
-2010-11, with three season files published on a different scale entirely. Both
-are documented at length in the sibling <code>nba-shot-value</code> repository. The five
-<code>BASIC_ZONE</code> labels have meant the same thing throughout, so they are all this
-project uses.</p>
-<h2>The attempt differential</h2>
-<p>This is the load-bearing piece and it deserves its own scrutiny.</p>
-<p>A steal writes no row into a shot file. What it writes is the absence of one.
-Both teams in a game see the same possessions to within one, so</p>
-<pre><code>(own attempts per game) - (opponent attempts per game)
-</code></pre>
-<p>is the shortfall a defense created: possessions the opponent never got to shoot
-on, plus possessions the defense got twice. It mixes <strong>turnovers forced</strong> with
-<strong>the offensive rebounding battle</strong>, and nothing here separates them.</p>
-<p>Converting it to points uses that season's league-average points per attempt: a
-denied attempt is worth what an average attempt was worth. That is the right
-order of magnitude and it is not exact, because the attempts a defense denies
-are not a random sample of attempts.</p>
-<p><strong>What it is not.</strong> It is not a turnover rate. A team with a poor offensive
-rebounding rate of its own will show a worse attempt differential than its
-defense deserves, and this project makes no attempt to correct for that, because
-correcting it needs rebounding data the file does not carry.</p>
-<h2>Why points per <em>game</em> rather than per possession</h2>
-<p>Because there is no possession count in a shot file, and inventing one from
-attempts would be circular in a project whose second channel is attempts.</p>
-<p>The cost is real: a fast team looks like it denies more points a game than the
-same team playing slow, so the leaderboard has a mild pace tilt. It is a tilt and
-not a confound — the league's pace range across a season is roughly ten per
-cent — and the alternative was worse.</p>
-<h2>Stability, and what it licenses</h2>
-<p>Every component is run against the same team's next season, across the 624
-consecutive team-season pairs in the sample. Opponent shooting percentages are
-first expressed against that season's league average:</p>
-<div class="tw"><table>
-<thead>
-<tr>
-<th>Component</th>
-<th>Repeats at</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Shot locations forced</td>
-<td class="num">0.66</td>
-</tr>
-<tr>
-<td>Opponent two-point percentage</td>
-<td class="num">0.58</td>
-</tr>
-<tr>
-<td>Points denied per game</td>
-<td class="num">0.51</td>
-</tr>
-<tr>
-<td>Conversion suppressed</td>
-<td class="num">0.51</td>
-</tr>
-<tr>
-<td>Attempt differential</td>
-<td class="num">0.44</td>
-</tr>
-<tr>
-<td>Opponent three-point percentage</td>
-<td class="num"><strong>0.19</strong></td>
-</tr>
-</tbody>
-</table></div>
-<p>The centering matters. League two-point percentage climbed from .460 to .545 over
-these twenty-two seasons, and a raw year-to-year correlation picks that climb up
-as if every team were repeating itself: uncentred, opponent two-point
-percentage "repeats" at 0.85. Measured against the league it is 0.58. The
-three-point side barely moves either way (0.16 raw, 0.19 centered), because
-league three-point accuracy hardly changed.</p>
-<p>The last row is the one that matters and it is not news to anyone who has looked
-at defensive statistics before; it is here because it changes what can be said
-about this particular season. Splitting the conversion channel by whether the
-shot was worth three puts <strong>−2.81 of Oklahoma City's −5.37 on the two-point side
-and −2.57 on the three-point side</strong>, and the second of those numbers is a
-property of the season more than of the team.</p>
-<p>This is a bound, not an identification. It says how much of a <em>typical</em> team's
-conversion edge carries forward. It cannot say which of Oklahoma City's
-individual possessions were contest quality and which were a shooter missing an
-open look.</p>
-<h2>Why "points denied" rather than a rating</h2>
-<p>The composite adds the two channels and reports one number in points a game. It
-is deliberately not called a defensive rating, because it is not one: no free
-throws, no possessions, no pace adjustment.</p>
-<p>What it has instead is that it is built from what a defense <em>did</em> — the
-locations it forced, the conversion it allowed, the attempts it denied — rather
-than from what its opponents happened to score. Those are different objects and
-the difference is the point of building it.</p>
-<h2>Where this is weakest</h2>
-<p><strong>Fouling is invisible.</strong> A defense that concedes free throws instead of shots
-looks better here than it is, and the effect is not small: free throws are about
-a fifth of scoring. Any team whose shot defense looks unusually good should be
-checked against its free-throw rate allowed before anyone believes it. That
-check cannot be run from this file.</p>
-<p><strong>The subject is one season.</strong> Twenty-two seasons of context around a single
-team-season is the right shape for the question "how unusual was that", and the
-wrong shape for "how good is this team". The season-by-season table is there so
-the reader can see how much of it is new.</p>
-<p><strong>Opponent quality is not controlled.</strong> A defense that played a soft schedule
-looks better here. Over 82 games the schedule mostly evens out, and this is a
-real limitation on any single-season comparison — particularly between
-conferences, which do not play each other equally.</p>
-<p><strong>Regular season only, 2003-04 to 2024-25</strong>, which is where the shot mirror
-currently ends. Nothing in this repository is about a playoff series, and a
-seven-game series against one opponent is not the thing an 82-game average
-predicts well.</p>
+<h1>Method and revision notes</h1>
+<p>Oklahoma City's 2024–25 shot-file results combine low opponent scoring per attempt with more field-goal attempts than its opponents. Those are useful components to describe, but their sum is not a defensive rating.</p>
+<p>The decomposition compares each team's opponents with that season's league field-goal rates. Location measures the value of the observed zone mix; conversion measures the remaining difference in scoring from those zones. Neither component identifies a defensive scheme's causal contribution.</p>
+<figure><img loading="lazy" src="../figures/01_two_channels.png" alt="Shot efficiency and attempt balance" /></figure>
+<h2>Correct definition of the combined measure</h2>
+<p><strong>Net field-goal edge</strong> = opponent field-goal points below league shot rates + the team's net attempt advantage valued at the league's points per attempt.</p>
+<p>Attempt balance includes both teams' offense, defense, rebounding, turnovers and free-throw trips. Additional offensive rebounds can improve this measure without any change to opponent shot defense. It excludes free-throw points, pace adjustment and opponent-strength adjustment. Use it as a descriptive field-goal balance, not a ranking of total defense.</p>
+<p><a href="../output/okc_path.csv">Result table</a></p>
+<figure><img loading="lazy" src="../figures/02_denied.png" alt="Historical net field-goal edges" /></figure>
+<h2>Does opponent accuracy persist?</h2>
+<p>The revised comparison subtracts the attempt-weighted league 2P% or 3P% within each season before correlating consecutive team-seasons. Raw correlations are retained for comparison.</p>
+<p><a href="../output/accuracy_stability.csv">Result table</a></p>
+<p>The large raw two-point correlation partly reflects the league's changing accuracy over time. The season-relative association remains positive, but correlation does not tell us what fraction is defensive skill. Roster continuity, opponent mix and sampling variation also matter. This is a retrospective persistence check, not an evaluated next-season forecast.</p>
+<figure><img loading="lazy" src="../figures/05_stability.png" alt="Season-relative persistence" /></figure>
+<h2>Basketball use</h2>
+<p>The zone profile directs attention to where opponent efficiency differed from league rates. Film and possession-level data are needed to distinguish contested finishes, rotations, transition defense and opponent shooting variance. A complete defensive evaluation must also account for free throws, turnovers, rebounds and possession counts.</p>
+<p>The sample ends in 2024–25; team labels and rankings refer to that historical sample.</p>
+<p>The result tables are linked and rendered in the main article. Full algorithms and thresholds are in <code>src/</code>; source bytes are recorded in <code>data/source_manifest.json</code>.</p>
+
 </div></main>
-<footer class="foot"><div class="wrap"><span>okc-defence</span><span>figures and tables regenerated by the pipeline in this repository</span></div></footer>
+<footer class="foot"><div class="wrap"><span>okc-defence</span><span>source, results and validation notes in the repository</span></div></footer>
 </body>
 </html>

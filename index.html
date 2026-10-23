@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The best defense a shot chart has ever seen</title>
-<meta name="description" content="San Antonio and Oklahoma City met in the 2026 Western Conference finals and it went seven. This is about the season before that one — 2024-25, the last full season the public shot-">
+<title>Oklahoma City: opponent shot efficiency and attempt balance</title>
+<meta name="description" content="Oklahoma City&#x27;s 2024–25 shot-file results combine low opponent scoring per attempt with more field-goal attempts than its opponents. Those are useful components to describe, but th">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
 <style>
 :root{
@@ -99,344 +99,230 @@ figure img{display:block;width:100%;height:auto;border:1px solid var(--rule);bor
 </style>
 </head>
 <body>
-<header class="bar"><div class="wrap"><span class="slug">okc-defence</span><nav><a href="docs/method.html">method</a><a href="https://github.com/jmsmarrelli/okc-defence">repository</a><a href="https://jmsmarrelli.github.io/basketball-analytics/">all projects</a></nav></div></header>
+<header class="bar"><div class="wrap"><span class="slug">okc-defence</span><nav><a href="docs/method.html">method</a></nav></div></header>
 <main><div class="wrap">
-<h1>The best defense a shot chart has ever seen</h1>
-<p>San Antonio and Oklahoma City met in the 2026 Western Conference finals and it
-went seven. This is about the season before that one — 2024-25, the last full
-season the public shot-chart mirror covers — and about what a scouting
-department could have known from it.</p>
-<p>Twenty-two seasons, 4,432,054 shot attempts, 26,453 games, 659 team-seasons,
-2003-04 to 2024-25.</p>
-<p><strong>Oklahoma City's 2024-25 defense took more points off the board than any team
-in the sample. It is not the best shot defense in the sample. Those two
-sentences are the project.</strong></p>
-<hr>
-<h2>A shot file sees two of the four things a defense does</h2>
-<p>A defense makes you shoot from bad places, makes you miss from good ones, takes
-the ball away before you shoot at all, and keeps you off the offensive glass. A
-file of shot attempts sees the first two directly.</p>
-<p>It sees the other two as an <strong>absence</strong>. Both teams in a game get roughly the
-same number of possessions, so a team that shoots more often than its opponents
-has either taken the ball away or got it back off the rim. That shortfall — the
-attempt differential — is the only trace a turnover leaves in a file that records
-only shots, and it turns out to be enough.</p>
-<p>Everything below is in points per game against that season's league average, so
-the two channels can be added.</p>
-<hr>
-<h2>Where the great defenses live</h2>
-<figure><img loading="lazy" alt="Two channels" src="figures/01_two_channels.png"></figure>
-<p>The horizontal axis is the shot chart. The vertical axis is the attempts.
-Twenty-two seasons of defenses are on it, and the shape is the finding: the
-famous ones are on the <strong>right</strong>, and almost none of them is also <strong>up</strong>.</p>
+<h1>Oklahoma City: opponent shot efficiency and attempt balance</h1>
+<p>Oklahoma City's 2024–25 shot-file results combine low opponent scoring per attempt with more field-goal attempts than its opponents. Those are useful components to describe, but their sum is not a defensive rating.</p>
+<p>The decomposition compares each team's opponents with that season's league field-goal rates. Location measures the value of the observed zone mix; conversion measures the remaining difference in scoring from those zones. Neither component identifies a defensive scheme's causal contribution.</p>
+<figure><img loading="lazy" src="figures/01_two_channels.png" alt="Shot efficiency and attempt balance" /></figure>
+<h2>Correct definition of the combined measure</h2>
+<p><strong>Net field-goal edge</strong> = opponent field-goal points below league shot rates + the team's net attempt advantage valued at the league's points per attempt.</p>
+<p>Attempt balance includes both teams' offense, defense, rebounding, turnovers and free-throw trips. Additional offensive rebounds can improve this measure without any change to opponent shot defense. It excludes free-throw points, pace adjustment and opponent-strength adjustment. Use it as a descriptive field-goal balance, not a ranking of total defense.</p>
 <div class="tw"><table>
 <thead>
 <tr>
-<th></th>
-<th>Shot defense</th>
-<th>Attempt differential</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>2012-13 Indiana</td>
-<td class="num">−8.67</td>
-<td class="num">−1.77</td>
-</tr>
-<tr>
-<td>2013-14 Indiana</td>
-<td class="num">−8.25</td>
-<td class="num">−2.52</td>
-</tr>
-<tr>
-<td>2019-20 Milwaukee</td>
-<td class="num">−7.94</td>
-<td class="num">−2.84</td>
-</tr>
-<tr>
-<td>2007-08 Boston</td>
-<td class="num">−7.93</td>
-<td class="num">−0.52</td>
-</tr>
-<tr>
-<td>2003-04 San Antonio</td>
-<td class="num">−7.58</td>
-<td class="num">+0.70</td>
-</tr>
-</tbody>
-</table></div>
-<p><em>(Shot defense in points per 100 attempts faced; negative is good. Attempt
-differential in attempts per game; positive is good.)</em></p>
-<p>Those teams won by making you miss and then giving you the ball back. In
-twenty-two seasons, exactly <strong>five</strong> team-seasons cleared −4 on the shot chart
-<em>and</em> +3 in attempts at the same time. Oklahoma City's is the largest of the five
-by a distance.</p>
-<hr>
-<h2>What Oklahoma City did</h2>
-<div class="tw"><table>
-<thead>
-<tr>
-<th></th>
-<th>Value</th>
-<th>League rank</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Shot locations forced</td>
-<td>−0.50 per 100</td>
-<td>9th</td>
-</tr>
-<tr>
-<td>Conversion suppressed</td>
-<td><strong>−5.37 per 100</strong></td>
-<td><strong>1st</strong></td>
-</tr>
-<tr>
-<td>Both together</td>
-<td><strong>−5.88 per 100</strong></td>
-<td><strong>1st</strong></td>
-</tr>
-<tr>
-<td>Attempt differential</td>
-<td><strong>+5.89 a game</strong></td>
-<td><strong>1st</strong></td>
-</tr>
-<tr>
-<td><strong>Points denied per game</strong></td>
-<td class="num"><strong>11.51</strong></td>
-<td><strong>1st of 659</strong></td>
-</tr>
-</tbody>
-</table></div>
-<figure><img loading="lazy" alt="Denied" src="figures/02_denied.png"></figure>
-<p>Eleven and a half points a game against league average, and the next entry in
-twenty-two seasons is the 2009-10 Bucks at 10.19. About 5.1 of it is the shot
-chart and about 6.4 of it is never letting the shot happen.</p>
-<p>The zone-by-zone picture says what kind of defense that is:</p>
-<figure><img loading="lazy" alt="Zone profile" src="figures/04_zone_profile.png"></figure>
-<div class="tw"><table>
-<thead>
-<tr>
-<th>Opponent attempts</th>
-<th>Share</th>
-<th>League</th>
+<th>Season</th>
+<th>Location</th>
 <th>Conversion</th>
-<th>League</th>
+<th>Total</th>
+<th>Att diff</th>
+<th>Net fg edge</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>At the rim</td>
-<td class="num">25.0%</td>
-<td class="num">28.0%</td>
-<td class="num"><strong>62.2%</strong></td>
-<td class="num">66.4%</td>
+<td>2008–09</td>
+<td class="num">1.202</td>
+<td class="num">1.505</td>
+<td class="num">2.707</td>
+<td class="num">-1.049</td>
+<td class="num">-3.288</td>
 </tr>
 <tr>
-<td>Paint, off the rim</td>
-<td class="num">20.9%</td>
-<td class="num">20.4%</td>
-<td class="num">43.3%</td>
-<td class="num">44.4%</td>
+<td>2009–10</td>
+<td class="num">1.098</td>
+<td class="num">-4.556</td>
+<td class="num">-3.458</td>
+<td class="num">-0.902</td>
+<td class="num">1.911</td>
 </tr>
 <tr>
-<td>Mid-range</td>
-<td class="num">9.2%</td>
-<td class="num">9.8%</td>
-<td class="num">40.2%</td>
-<td class="num">41.7%</td>
+<td>2010–11</td>
+<td class="num">0.570</td>
+<td class="num">-1.480</td>
+<td class="num">-0.910</td>
+<td class="num">-2.378</td>
+<td class="num">-1.627</td>
 </tr>
 <tr>
-<td>Corner three</td>
-<td class="num">13.3%</td>
-<td class="num">10.8%</td>
-<td class="num">38.3%</td>
-<td class="num">38.8%</td>
+<td>2011–12</td>
+<td class="num">0.707</td>
+<td class="num">-5.182</td>
+<td class="num">-4.475</td>
+<td class="num">-5.818</td>
+<td class="num">-1.894</td>
 </tr>
 <tr>
-<td>Above the break</td>
-<td class="num">31.7%</td>
-<td class="num">31.1%</td>
-<td class="num"><strong>33.0%</strong></td>
-<td class="num">35.5%</td>
+<td>2012–13</td>
+<td class="num">0.427</td>
+<td class="num">-5.928</td>
+<td class="num">-5.501</td>
+<td class="num">-5.610</td>
+<td class="num">-0.933</td>
+</tr>
+<tr>
+<td>2013–14</td>
+<td class="num">1.250</td>
+<td class="num">-3.952</td>
+<td class="num">-2.703</td>
+<td class="num">-0.683</td>
+<td class="num">1.557</td>
+</tr>
+<tr>
+<td>2014–15</td>
+<td class="num">1.177</td>
+<td class="num">-2.692</td>
+<td class="num">-1.515</td>
+<td class="num">1.305</td>
+<td class="num">2.590</td>
+</tr>
+<tr>
+<td>2015–16</td>
+<td class="num">0.945</td>
+<td class="num">-4.670</td>
+<td class="num">-3.725</td>
+<td class="num">-1.232</td>
+<td class="num">2.010</td>
+</tr>
+<tr>
+<td>2016–17</td>
+<td class="num">0.830</td>
+<td class="num">-1.258</td>
+<td class="num">-0.428</td>
+<td class="num">2.134</td>
+<td class="num">2.564</td>
+</tr>
+<tr>
+<td>2017–18</td>
+<td class="num">1.447</td>
+<td class="num">-0.594</td>
+<td class="num">0.852</td>
+<td class="num">4.037</td>
+<td class="num">3.513</td>
+</tr>
+<tr>
+<td>2018–19</td>
+<td class="num">1.375</td>
+<td class="num">-1.628</td>
+<td class="num">-0.253</td>
+<td class="num">5.244</td>
+<td class="num">5.739</td>
+</tr>
+<tr>
+<td>2019–20</td>
+<td class="num">-0.671</td>
+<td class="num">-1.366</td>
+<td class="num">-2.037</td>
+<td class="num">-4.167</td>
+<td class="num">-2.603</td>
+</tr>
+<tr>
+<td>2020–21</td>
+<td class="num">0.493</td>
+<td class="num">1.279</td>
+<td class="num">1.772</td>
+<td class="num">-3.778</td>
+<td class="num">-5.697</td>
+</tr>
+<tr>
+<td>2021–22</td>
+<td class="num">-0.984</td>
+<td class="num">1.181</td>
+<td class="num">0.198</td>
+<td class="num">-1.280</td>
+<td class="num">-1.544</td>
+</tr>
+<tr>
+<td>2022–23</td>
+<td class="num">0.762</td>
+<td class="num">-0.212</td>
+<td class="num">0.549</td>
+<td class="num">4.317</td>
+<td class="num">4.238</td>
+</tr>
+<tr>
+<td>2023–24</td>
+<td class="num">0.661</td>
+<td class="num">-3.934</td>
+<td class="num">-3.273</td>
+<td class="num">0.232</td>
+<td class="num">3.165</td>
+</tr>
+<tr>
+<td>2024–25</td>
+<td class="num">-0.502</td>
+<td class="num">-5.374</td>
+<td class="num">-5.876</td>
+<td class="num">5.890</td>
+<td class="num">11.506</td>
 </tr>
 </tbody>
 </table></div>
-<p>They take three points of rim attempts away and hand back two and a half points
-of corner threes, which is close to an even trade and is why their <em>location</em>
-number is ordinary. Then their opponents shoot below league average in <strong>every
-zone on the floor</strong>.</p>
-<hr>
-<h2>The part a front office should discount</h2>
-<figure><img loading="lazy" alt="Stability" src="figures/05_stability.png"></figure>
-<p>Run every component against the same team's next season across 624 consecutive
-pairs. Opponent shooting is measured against that season's league average, so
-the league-wide rise in two-point percentage does not count as a team repeating
-itself:</p>
+<p>Source: <a href="output/okc_path.csv">okc_path.csv</a>.</p>
+<figure><img loading="lazy" src="figures/02_denied.png" alt="Historical net field-goal edges" /></figure>
+<h2>Does opponent accuracy persist?</h2>
+<p>The revised comparison subtracts the attempt-weighted league 2P% or 3P% within each season before correlating consecutive team-seasons. Raw correlations are retained for comparison.</p>
 <div class="tw"><table>
 <thead>
 <tr>
-<th></th>
-<th>Repeats at</th>
+<th>Label</th>
+<th>Pairs</th>
+<th>Year over year r</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Shot locations forced</td>
-<td class="num">0.66</td>
+<td>Opponent 2P%, season-relative</td>
+<td class="num">624</td>
+<td class="num">0.582</td>
+</tr>
+<tr>
+<td>Opponent 3P%, season-relative</td>
+<td class="num">624</td>
+<td class="num">0.188</td>
 </tr>
 <tr>
 <td>Opponent two-point percentage</td>
-<td class="num"><strong>0.58</strong></td>
-</tr>
-<tr>
-<td>Points denied per game</td>
-<td class="num">0.51</td>
-</tr>
-<tr>
-<td>Conversion suppressed</td>
-<td class="num">0.51</td>
-</tr>
-<tr>
-<td>Attempt differential</td>
-<td class="num">0.44</td>
+<td class="num">624</td>
+<td class="num">0.849</td>
 </tr>
 <tr>
 <td>Opponent three-point percentage</td>
-<td class="num"><strong>0.19</strong></td>
+<td class="num">624</td>
+<td class="num">0.164</td>
+</tr>
+<tr>
+<td>Conversion denied on twos</td>
+<td class="num">624</td>
+<td class="num">0.559</td>
+</tr>
+<tr>
+<td>Conversion denied on threes</td>
+<td class="num">624</td>
+<td class="num">0.186</td>
 </tr>
 </tbody>
 </table></div>
-<p>A defense keeps a good part of the two-point percentage it allowed and very
-little of the three-point percentage. That is not a small technicality here,
-because Oklahoma City's conversion edge splits almost exactly in half across
-that line:</p>
-<ul>
-<li><strong>−2.81 per 100 from twos.</strong> Opponents shot 51.3% inside the arc. This is the
-  half that repeats.</li>
-<li><strong>−2.57 per 100 from threes.</strong> Opponents shot 34.5% against a league average of
-  36.3%. This is the half that does not.</li>
-</ul>
-<p>At 86.6 attempts faced per game, that second half is worth about <strong>2.2 points a
-game</strong> — and it sits on a component with a year-to-year correlation of 0.19.
-Anything projecting this defense forward should hand those back and then decide
-whether what is left is still frightening.</p>
-<p>It is. Take out the three-point half entirely and they are still at about 9.3
-points a game, which exactly one other team-season in twenty-two years beats —
-and that team, the 2009-10 Bucks, got there almost wholly on attempts.</p>
-<hr>
-<h2>How it was built</h2>
-<figure><img loading="lazy" alt="Components" src="figures/03_okc_components.png"></figure>
-<p>The attempt advantage came first and it is not new: the 2018-19 Thunder led the
-league in points denied on the strength of a +5.24 attempt differential with an
-ordinary shot chart. It vanished in the rebuild — 30th in 2020-21 — and came
-back in 2022-23. The conversion suppression is the recent part, arriving in
-2023-24 and doubling in 2024-25.</p>
-<p>Which is the honest version of the scouting note: one half of this defense is a
-four-season organizational trait, and the other half is two seasons old.</p>
-<hr>
-<h2>The Western tier, 2024-25</h2>
-<div class="tw"><table>
-<thead>
-<tr>
-<th></th>
-<th>Shot defense</th>
-<th>Attempt differential</th>
-<th>Points denied</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Oklahoma City</strong></td>
-<td class="num"><strong>−5.88</strong></td>
-<td class="num"><strong>+5.89</strong></td>
-<td class="num"><strong>11.51</strong></td>
-</tr>
-<tr>
-<td>Houston</td>
-<td class="num">−2.92</td>
-<td class="num">+5.00</td>
-<td class="num">8.02</td>
-</tr>
-<tr>
-<td>Golden State</td>
-<td class="num">−0.34</td>
-<td class="num">+3.43</td>
-<td class="num">4.03</td>
-</tr>
-<tr>
-<td>Minnesota</td>
-<td class="num">−2.23</td>
-<td class="num">−0.33</td>
-<td class="num">1.60</td>
-</tr>
-<tr>
-<td>LA Lakers</td>
-<td class="num">−0.76</td>
-<td class="num">−3.77</td>
-<td class="num">−3.43</td>
-</tr>
-<tr>
-<td>Denver</td>
-<td class="num">−0.37</td>
-<td class="num">−3.54</td>
-<td class="num">−3.51</td>
-</tr>
-<tr>
-<td>San Antonio</td>
-<td class="num">+1.76</td>
-<td class="num">−2.77</td>
-<td class="num">−4.64</td>
-</tr>
-</tbody>
-</table></div>
-<p>Two of the West's three best defenses by this measure were built the same way,
-and Houston is the only other team in the league that gets near Oklahoma City on
-attempts. San Antonio's own 2024-25 number is the worst of the seven, in a season
-their defensive centerpiece missed the second half of.</p>
-<hr>
-<h2>What this is not</h2>
-<ul>
-<li><strong>Not a defensive rating.</strong> No free throws, no possessions, no pace. A defense
-  that fouls is invisible here, and a team that plays fast will look like it
-  denies more points a game than the same team playing slow.</li>
-<li><strong>The attempt differential is two things at once.</strong> Turnovers forced and the
-  offensive rebounding battle are added together in it and nothing here
-  separates them. Both are real defense; they are not the same skill and they do
-  not have the same shelf life.</li>
-<li><strong>Conversion is contest quality and luck in unknown proportions.</strong> The
-  stability table bounds how much of it to believe. It does not identify which
-  half of any particular season was which.</li>
-<li><strong>Regular season only, through 2024-25</strong>, which is where the mirror ends.
-  Nothing here is about a playoff series, including the one these two teams
-  played.</li>
-</ul>
-<hr>
-<h2>Running it</h2>
-<pre><code class="language-bash">pip install -r requirements.txt
-python src/run_01_build.py     # 22 season files -&gt; team profiles, both sides
-python src/run_02_defence.py   # the decomposition, the stability check, figures 01-05
+<p>Source: <a href="output/accuracy_stability.csv">accuracy_stability.csv</a>.</p>
+<p>The large raw two-point correlation partly reflects the league's changing accuracy over time. The season-relative association remains positive, but correlation does not tell us what fraction is defensive skill. Roster continuity, opponent mix and sampling variation also matter. This is a retrospective persistence check, not an evaluated next-season forecast.</p>
+<figure><img loading="lazy" src="figures/05_stability.png" alt="Season-relative persistence" /></figure>
+<h2>Basketball use</h2>
+<p>The zone profile directs attention to where opponent efficiency differed from league rates. Film and possession-level data are needed to distinguish contested finishes, rotations, transition defense and opponent shooting variance. A complete defensive evaluation must also account for free throws, turnovers, rebounds and possession counts.</p>
+<p>The sample ends in 2024–25; team labels and rankings refer to that historical sample.</p>
+<h2>Reproduce</h2>
+<p>The historical analysis used Python 3.12 with the pinned dependencies below. From this repository:</p>
+<pre><code class="language-bash">python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+make fetch-data PY=python
+make all PY=python
+make report site PY=python
 </code></pre>
-<p>Or <code>make all</code>. Under a minute once the raw files are on disk.</p>
-<pre><code>src/
-  config.py        paths, seasons, the subject
-  defence.py       the two channels, and how each is priced
-  labels.py        collision-resolving point labels
-  style.py         one place that decides what every figure looks like
-  run_0*.py        the pipeline, in order
-output/            every number quoted above, as CSV
-figures/           five figures, regenerated from scratch by the pipeline
-docs/method.md     longer notes, including what the attempt differential is really measuring
-</code></pre>
-<h2>Data</h2>
-<p>Shot-level data from
-<a href="https://github.com/DomSamangy/NBA_Shots_04_24">DomSamangy/NBA_Shots_04_24</a>, a
-mirror of the league's public shot chart endpoint. <code>data/README.md</code> has the fetch
-step and the list of what a shot file cannot see.</p>
-<h2>License</h2>
-<p>MIT. See <code>LICENSE</code>.</p>
+<p><code>make all</code> verifies source hashes before running the analyses in order. A missing or changed input stops the build. Data downloads need network access; article rendering uses the included result tables. See <a href="data/source_manifest.json">the source manifest</a>, <a href="docs/method.md">method notes</a> and <a href="VALIDATION_CURRENT.md">current validation record</a> for the distinction between a source rebuild and checks of delivered outputs.</p>
+<p>Season keys in CSV files use the <strong>ending year</strong>: <code>2025</code> means 2024–25. Display tables use full season labels. The MIT license covers code; third-party data retain their providers' rights and terms.</p>
+<p><a href="https://github.com/jmsmarrelli/basketball-analytics">Portfolio</a> · <a href="PROVENANCE.md">AI assistance and provenance</a></p>
+
 </div></main>
-<footer class="foot"><div class="wrap"><span>okc-defence</span><span>figures and tables regenerated by the pipeline in this repository</span></div></footer>
+<footer class="foot"><div class="wrap"><span>okc-defence</span><span>source, results and validation notes in the repository</span></div></footer>
 </body>
 </html>

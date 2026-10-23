@@ -1,4 +1,4 @@
-"""Stage 2 - split every defense in two, and find out what kind Oklahoma City is.
+"""Stage 2 - split every defence in two, and find out what kind Oklahoma City is.
 
     python src/run_02_defence.py
 
@@ -53,10 +53,10 @@ def build(prof: pd.DataFrame, zone_value: pd.DataFrame,
     # Two channels, both in points per game, so they can be added.
     d["pts_from_shots"] = d["att_per_game"] * d["total"] / 100
     d["pts_from_attempts"] = -d["att_diff"] * d["league_pps"]
-    d["denied"] = -(d["pts_from_shots"] + d["pts_from_attempts"])
+    d["net_fg_edge"] = -(d["pts_from_shots"] + d["pts_from_attempts"])
 
     for col, asc in (("location", True), ("conversion", True), ("total", True),
-                     ("att_diff", False), ("denied", False)):
+                     ("att_diff", False), ("net_fg_edge", False)):
         d[f"rank_{col}"] = D.rank_within_season(d, col, ascending=asc)
     return d
 
@@ -73,24 +73,21 @@ def year_over_year(frame: pd.DataFrame, col: str) -> tuple[float, int]:
 def stability(d: pd.DataFrame) -> pd.DataFrame:
     """How much of each component a team keeps from one season to the next.
 
-    A defense that is skill repeats; a defense that is variance does not. This is
-    the check that decides how much of the subject's season should be believed
-    about next season, and it is run on the whole sample rather than on him.
+    Persistence is descriptive. Roster continuity, common trends, schedule and
+    sampling noise all affect this correlation; it is not a skill fraction.
     """
     rows = []
-    for col in ("location", "conversion", "total", "att_diff", "denied"):
+    for col in ("location", "conversion", "total", "att_diff", "net_fg_edge"):
         r, n = year_over_year(d, col)
         rows.append({"component": col, "pairs": n, "year_over_year_r": r})
     return pd.DataFrame(rows)
 
 
 def accuracy_split(conv: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Opponent accuracy on twos and on threes, against the season's league
-    average, and how much either repeats.
+    """Opponent accuracy on twos and on threes, and how much either repeats.
 
-    This is the check that decides how much of a conversion-driven defense to
-    believe. Opponent two-point percentage is largely a property of a defense.
-    Opponent three-point percentage is largely a property of the season.
+    Report both raw and season-relative accuracy persistence. Neither separates
+    causal defensive skill from personnel, schedule and sampling variation.
     """
     acc = D.opponent_accuracy(conv)
     made = (conv.assign(made=lambda x: x["fg"] * x["att"])
@@ -100,20 +97,23 @@ def accuracy_split(conv: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     wide = made.pivot_table(index=["season", "team"], columns="is_three",
                             values="opp_fg", observed=True)
     wide.columns = ["opp_two_pct", "opp_three_pct"]
-    # Opponent accuracy is compared against that season's league, not in raw
-    # form. League two-point percentage rose from .46 to .55 across the sample;
-    # left in, that drift correlates every team with its own next season and
-    # makes the two-point side look far stickier than it is.
-    centred = wide - wide.groupby(level="season").transform("mean")
-    centred.columns = ["opp_two_vs_league", "opp_three_vs_league"]
     contrib = acc.pivot_table(index=["season", "team"], columns="is_three",
                               values="contribution", observed=True)
     contrib.columns = ["from_twos", "from_threes"]
-    out = pd.concat([wide, centred, contrib], axis=1).reset_index()
+    out = pd.concat([wide, contrib], axis=1).reset_index()
+
+    # Remove the league's evolving accuracy separately for twos and threes.
+    league = made.groupby(["season", "is_three"])[["made", "att"]].sum()
+    league["fg"] = league["made"] / league["att"]
+    for flag, col in [(False, "opp_two_pct"), (True, "opp_three_pct")]:
+        baseline = league.xs(flag, level="is_three")["fg"]
+        out[col + "_relative"] = out[col] - out["season"].map(baseline)
 
     rows = []
-    for col, label in (("opp_two_vs_league", "Opponent two-point percentage"),
-                       ("opp_three_vs_league", "Opponent three-point percentage"),
+    for col, label in (("opp_two_pct_relative", "Opponent 2P%, season-relative"),
+                       ("opp_three_pct_relative", "Opponent 3P%, season-relative"),
+                       ("opp_two_pct", "Opponent two-point percentage"),
+                       ("opp_three_pct", "Opponent three-point percentage"),
                        ("from_twos", "Conversion denied on twos"),
                        ("from_threes", "Conversion denied on threes")):
         r, n = year_over_year(out, col)
@@ -132,7 +132,7 @@ def fig_two_channels(d: pd.DataFrame) -> None:
     ax.axhline(0, color=S.INK_3, lw=0.9, zorder=3)
     ax.axvline(0, color=S.INK_3, lw=0.9, zorder=3)
 
-    mark = d.nlargest(6, "denied").copy()
+    mark = d.nlargest(6, "net_fg_edge").copy()
     best_shots = d.nsmallest(3, "total")
     mark = pd.concat([mark, best_shots]).drop_duplicates(subset=["season", "team"])
     mark = mark[~((mark["team"] == SUBJECT) & (mark["season"] == SUBJECT_SEASON))]
@@ -146,56 +146,46 @@ def fig_two_channels(d: pd.DataFrame) -> None:
                 xytext=(-12, 14), textcoords="offset points", ha="right",
                 fontsize=11, color=OKC, fontweight="semibold")
 
-    ax.set_xlabel("Points a game denied by making them miss")
-    ax.set_ylabel("Points a game denied by not letting them shoot")
-    ax.set_title("Two ways to stop a team, and one team that did both", loc="left")
+    ax.set_xlabel("Opponent scoring below league shot rates (points/game)")
+    ax.set_ylabel("Net attempt advantage at league value (points/game)")
+    ax.set_title("Opponent shot efficiency and the net attempt advantage", loc="left")
     S.strip(ax)
-    S.caption(fig, f"Every team-season from {season_label(SEASONS[0])} to "
-                   f"{season_label(SEASONS[-1])}. The horizontal axis is the shot chart: what "
-                   "the opponent's locations and conversion were worth against league rates. The "
-                   "vertical axis is the attempt differential, which is what taking the ball away "
-                   "and cleaning the defensive glass leave behind in a file that records only "
-                   "shots. The great defenses of the last twenty years are on the right. Almost "
-                   "none of them is also up.")
+    S.caption(fig, 'All team-seasons in the source sample. Opponent scoring is compared with season league field-goal rates. Attempt balance depends on both teams’ offense, defense, rebounds, turnovers and free-throw trips. These are descriptive shot-file components, not defensive rating.')
     fig.tight_layout()
     fig.savefig(FIG / "01_two_channels.png")
     plt.close(fig)
 
 
 def fig_denied(d: pd.DataFrame) -> None:
-    top = d.nlargest(15, "denied").sort_values("denied").reset_index(drop=True)
+    top = d.nlargest(15, "net_fg_edge").sort_values("net_fg_edge").reset_index(drop=True)
     fig, ax = plt.subplots(figsize=(9.0, 6.2))
     colours = [OKC if (r.team == SUBJECT and r.season == SUBJECT_SEASON) else S.SILVER
                for r in top.itertuples()]
     shots = -top["pts_from_shots"]
     ax.barh(top.index, shots, color=colours, height=0.62, zorder=2,
-            label="by making them miss")
+            label="opponent shot efficiency")
     # A negative first segment is a defence that gave up more per shot than
     # average and denied attempts anyway. Drawn to the left of zero rather than
     # hidden, and the second segment starts wherever the first one ended.
     ax.barh(top.index, -top["pts_from_attempts"], left=shots,
             color=[S.NEUTRAL if c == S.SILVER else "#f4b393" for c in colours],
-            height=0.62, zorder=2, label="by not letting them shoot")
+            height=0.62, zorder=2, label="net attempt advantage")
     ax.axvline(0, color=S.INK_3, lw=0.9, zorder=4)
     for i, r in top.iterrows():
-        ax.text(r["denied"] + 0.14, i, f"{r['denied']:.1f}", va="center", fontsize=8.8,
+        ax.text(r["net_fg_edge"] + 0.14, i, f"{r['net_fg_edge']:.1f}", va="center", fontsize=8.8,
                 color=S.INK if colours[i] == OKC else S.INK_2,
                 fontweight="semibold" if colours[i] == OKC else "normal")
     ax.set_yticks(top.index, [f"{r.team}  {season_label(int(r.season))}"
                               for r in top.itertuples()])
     ax.set_ylim(-0.75, len(top) - 0.25)
-    ax.set_xlim(min(-0.6, shots.min() * 1.25), top["denied"].max() * 1.14)
+    ax.set_xlim(min(-0.6, shots.min() * 1.25), top["net_fg_edge"].max() * 1.14)
     ax.grid(axis="y", visible=False)
     S.strip(ax, keep=("bottom",))
     ax.tick_params(axis="y", labelsize=8.8)
-    ax.set_xlabel("Points a game denied against league average, both channels")
+    ax.set_xlabel("Net field-goal edge (points per game)")
     ax.legend(frameon=False, fontsize=9, loc="lower right")
-    ax.set_title("The most points any defense has taken off the board", loc="left")
-    S.caption(fig, "Adding the two channels gives a single number in points a game. It is not a "
-                   "defensive rating - there are no free throws in a shot file and no possession "
-                   "count - but it is built from what a defense actually did rather than from "
-                   "what its opponents happened to score. A dark segment left of zero is a team "
-                   "that gave up more per shot than average and made the list on attempts alone.")
+    ax.set_title("Largest net field-goal edges in this sample", loc="left")
+    S.caption(fig, 'Net field-goal edge adds opponent scoring below league shot rates to the net attempt advantage priced at league value. It combines offense and defense, excludes free throws, and does not adjust for pace or opponent strength. It cannot rank overall defenses.')
     fig.tight_layout()
     fig.savefig(FIG / "02_denied.png")
     plt.close(fig)
@@ -206,24 +196,21 @@ def fig_okc_path(d: pd.DataFrame) -> None:
     fig, ax = plt.subplots(figsize=(9.4, 5.0))
     x = np.arange(len(p))
     w = 0.27
-    bars = [("location", "shot locations forced", S.SERIES[0]),
-            ("conversion", "conversion suppressed", OKC),
-            ("att_diff_pts", "attempts denied", S.SERIES[2])]
+    bars = [("location", "opponent shot locations", S.SERIES[0]),
+            ("conversion", "opponent conversion", OKC),
+            ("att_diff_pts", "net attempt advantage", S.SERIES[2])]
     p = p.assign(att_diff_pts=-p["pts_from_attempts"] / p["att_per_game"] * 100)
     for i, (col, label, colour) in enumerate(bars):
         vals = -p[col] if col != "att_diff_pts" else p[col]
         ax.bar(x + (i - 1) * w, vals, w, color=colour, zorder=3, label=label)
     ax.axhline(0, color=S.INK_3, lw=0.9, zorder=4)
     ax.set_xticks(x, [season_label(int(s)) for s in p["season"]])
-    ax.set_ylabel("Points denied per 100 shots faced")
-    ax.set_title("Where Oklahoma City's defense came from, and when", loc="left")
+    ax.set_ylabel("Components per 100 opponent shots")
+    ax.set_title("Oklahoma City’s shot efficiency and attempt balance", loc="left")
     ax.legend(frameon=False, fontsize=9, loc="upper left")
     S.strip(ax)
     ax.grid(axis="x", visible=False)
-    S.caption(fig, "Positive is good defense on all three. The rebuild is visible: nothing much "
-                   "until 2022-23, an attempt advantage first, then the conversion suppression "
-                   "that turned a good defense into the best one in the sample. Forcing bad "
-                   "shot locations is the smallest of the three throughout.")
+    S.caption(fig, 'Positive values favor Oklahoma City on these shot-file measures. Attempt balance includes offensive contributions. The chart describes components; it does not identify the causal effects of defensive scheme or individual defenders.')
     fig.tight_layout()
     fig.savefig(FIG / "03_okc_components.png")
     plt.close(fig)
@@ -253,25 +240,22 @@ def fig_zones(zones: pd.DataFrame, league: pd.DataFrame) -> None:
         S.strip(ax)
         ax.grid(axis="x", visible=False)
     ax1.legend(frameon=False, fontsize=9, loc="upper right")
-    S.caption(fig, f"{SUBJECT} in {season_label(SUBJECT_SEASON)} against the league that season. "
-                   "The left panel is what a scheme controls and it is close to ordinary. The "
-                   "right panel is where the season was: opponents shot worse than league "
-                   "average in every zone on the floor.")
+    S.caption(fig, 'Oklahoma City and the league in the subject season. Opponent shot locations and conversion are observed outcomes. Scheme, personnel, opponent mix and randomness cannot be separated with these files.')
     fig.tight_layout()
     fig.savefig(FIG / "04_zone_profile.png")
     plt.close(fig)
 
 
 def fig_stability(st: pd.DataFrame, acc_st: pd.DataFrame) -> None:
-    names = {"location": "Shot locations forced", "conversion": "Conversion suppressed",
-             "att_diff": "Attempt differential", "denied": "Points denied per game"}
+    names = {"location": "Opponent shot locations", "conversion": "Opponent conversion",
+             "att_diff": "Attempt differential", "net_fg_edge": "Net field-goal edge"}
     d = st[st["component"].isin(names)].copy()
     d["label"] = d["component"].map(names)
-    keep = acc_st[acc_st["component"].isin(["opp_two_vs_league", "opp_three_vs_league"])]
+    keep = acc_st[acc_st["component"].isin(["opp_two_pct_relative", "opp_three_pct_relative"])]
     d = pd.concat([d, keep[["component", "label", "pairs", "year_over_year_r"]]],
                   ignore_index=True)
     d = d.sort_values("year_over_year_r").reset_index(drop=True)
-    highlight = {"Opponent three-point percentage", "Opponent two-point percentage"}
+    highlight = {"Opponent 2P%, season-relative", "Opponent 3P%, season-relative"}
     fig, ax = plt.subplots(figsize=(9.0, 4.4))
     ax.barh(d.index, d["year_over_year_r"], height=0.56, zorder=2,
             color=[OKC if lab in highlight else S.SILVER for lab in d["label"]])
@@ -280,18 +264,13 @@ def fig_stability(st: pd.DataFrame, acc_st: pd.DataFrame) -> None:
                 va="center", fontsize=9, color=S.INK_2)
     ax.set_yticks(d.index, d["label"])
     ax.set_ylim(-0.7, len(d) - 0.3)
-    ax.set_xlim(0, 0.75)
+    ax.set_xlim(0, 0.85)
     ax.grid(axis="y", visible=False)
     S.strip(ax, keep=("bottom",))
     ax.tick_params(axis="y", labelsize=9.2)
     ax.set_xlabel("Correlation with the same team's next season")
-    ax.set_title("What a defense keeps, and what it borrows from the season", loc="left")
-    S.caption(fig, f"All {int(d['pairs'].max()):,} consecutive team-season pairs in the sample. "
-                   "The two orange bars are the same quantity split by what kind of shot it was, "
-                   "and they are the point of the chart: a defense holds on to much of the "
-                   "two-point percentage it allowed, relative to the league, and very little of "
-                   "the three-point percentage. Half of Oklahoma City's conversion edge is on the wrong side of "
-                   "that line.")
+    ax.set_title("How components correlate across consecutive seasons", loc="left")
+    S.caption(fig, 'Consecutive team-season correlations. The highlighted accuracy measures subtract each season’s attempt-weighted league 2P% or 3P% before comparing years. Correlation is not the fraction caused by defensive skill and does not establish next-season forecast accuracy.')
     fig.tight_layout()
     fig.savefig(FIG / "05_stability.png")
     plt.close(fig)
@@ -317,7 +296,7 @@ def main() -> None:
     acc.round(5).to_csv(OUT / "opponent_accuracy.csv", index=False)
     acc_st.round(4).to_csv(OUT / "accuracy_stability.csv", index=False)
 
-    leaders = d.nlargest(25, "denied")
+    leaders = d.nlargest(25, "net_fg_edge")
     leaders.round(4).to_csv(OUT / "leaders.csv", index=False)
 
     # The subject's opponent profile, zone by zone, against that season's league.
@@ -339,30 +318,30 @@ def main() -> None:
     subj = d[(d["team"] == SUBJECT) & (d["season"] == SUBJECT_SEASON)].iloc[0]
     print(f"{len(d)} team-seasons, {season_label(SEASONS[0])} to {season_label(SEASONS[-1])}\n")
     print(f"--- {SUBJECT} {season_label(SUBJECT_SEASON)} ---")
-    for col, name in (("location", "shot locations forced"),
-                      ("conversion", "conversion suppressed"),
+    for col, name in (("location", "opponent shot locations"),
+                      ("conversion", "opponent conversion"),
                       ("total", "both, per 100 shots faced")):
         print(f"{name:32s} {-subj[col]:+6.2f}   league rank {int(subj[f'rank_{col}'])} of 30")
     print(f"{'attempt differential per game':32s} {subj['att_diff']:+6.2f}   "
           f"league rank {int(subj['rank_att_diff'])} of 30")
-    print(f"{'points denied per game':32s} {subj['denied']:+6.2f}   "
-          f"league rank {int(subj['rank_denied'])} of 30, "
-          f"and {int((d['denied'] > subj['denied']).sum()) + 1} of {len(d)} all time")
+    print(f"{'net field-goal edge':32s} {subj['net_fg_edge']:+6.2f}   "
+          f"league rank {int(subj['rank_net_fg_edge'])} of 30, "
+          f"and {int((d['net_fg_edge'] > subj['net_fg_edge']).sum()) + 1} of {len(d)} all time")
 
-    print("\n--- most points denied per game, whole sample ---")
+    print("\n--- most net field-goal edge, whole sample ---")
     print(leaders.head(10)[["season", "team", "pts_from_shots", "pts_from_attempts",
-                            "denied"]]
+                            "net_fg_edge"]]
           .to_string(index=False, float_format=lambda v: f"{v:.2f}"))
 
-    print("\n--- the best shot defenses, and what they gave up in attempts ---")
+    print("\n--- the best shot defences, and what they gave up in attempts ---")
     print(d.nsmallest(8, "total")[["season", "team", "location", "conversion", "total",
                                    "att_diff"]]
           .to_string(index=False, float_format=lambda v: f"{v:.2f}"))
 
-    both = d[(d["total"] < -4) & (d["att_diff"] > 3)].sort_values("denied", ascending=False)
+    both = d[(d["total"] < -4) & (d["att_diff"] > 3)].sort_values("net_fg_edge", ascending=False)
     print(f"\n--- team-seasons clearing -4 on the shot chart and +3 in attempts: "
           f"{len(both)} in {len(SEASONS)} seasons ---")
-    print(both[["season", "team", "total", "att_diff", "denied"]]
+    print(both[["season", "team", "total", "att_diff", "net_fg_edge"]]
           .to_string(index=False, float_format=lambda v: f"{v:.2f}"))
 
     print("\n--- how much of each component a team keeps year to year ---")
@@ -384,13 +363,13 @@ def main() -> None:
 
     print(f"\n--- {season_label(SUBJECT_SEASON)}, the Western top tier ---")
     peers = d[(d["season"] == SUBJECT_SEASON) & (d["team"].isin([SUBJECT] + PEERS))]
-    print(peers.sort_values("denied", ascending=False)
-          [["team", "location", "conversion", "total", "att_diff", "denied"]]
+    print(peers.sort_values("net_fg_edge", ascending=False)
+          [["team", "location", "conversion", "total", "att_diff", "net_fg_edge"]]
           .to_string(index=False, float_format=lambda v: f"{v:.2f}"))
 
     print(f"\n--- {SUBJECT}, season by season ---")
-    print(okc[["season", "location", "conversion", "total", "att_diff", "denied",
-               "rank_denied"]].tail(8)
+    print(okc[["season", "location", "conversion", "total", "att_diff", "net_fg_edge",
+               "rank_net_fg_edge"]].tail(8)
           .to_string(index=False, float_format=lambda v: f"{v:.2f}"))
 
 

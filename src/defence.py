@@ -1,26 +1,8 @@
-"""What a shot chart can and cannot tell you about a defense.
+"""Descriptive field-goal decomposition, not a complete defensive rating.
 
-A defense does four things. It makes the other team shoot from bad places, it
-makes them miss from good ones, it takes the ball away before they shoot at all,
-and it keeps them off the offensive glass. A file of shot attempts can see the
-first two directly, sees the third and fourth only as a shortfall in attempts,
-and cannot see free throws at all.
-
-So the decomposition here is deliberately narrow and says so. Every team-season's
-opponents are described by the mix of zones they shot from and the rate they
-converted in each, and the difference from league average splits in two:
-
-    points allowed per shot  -  league average
-        = (what their shot locations were worth at league rates)   <- location
-        + (what they actually scored, minus that)                  <- conversion
-
-Location is the part a scheme controls most directly. Conversion is contest
-quality, rim protection and luck, in proportions this data cannot separate.
-
-The third thing gets its own number. Both teams in a game see roughly the same
-number of possessions, so a team that shoots more often than its opponents is
-either taking the ball away or getting it back off the rim. The attempt
-differential is that, per game, and it is the only trace turnovers leave here.
+Location and conversion split opponent field-goal scoring relative to season
+league rates. Net attempt balance combines offensive and defensive contributions
+and cannot isolate turnovers, rebounding or possession control from shot files.
 """
 
 from __future__ import annotations
@@ -44,7 +26,7 @@ def league_zone_value(shots: pd.DataFrame) -> pd.DataFrame:
 
     Re-estimated every season on purpose. The value of a corner three in 2004-05
     is not the value of one in 2024-25, and a decomposition that used a pooled
-    rate would price two decades of rule changes as defense.
+    rate would price two decades of rule changes as defence.
     """
     g = shots.groupby(["season", "zone5"], observed=True)
     out = g.agg(att=("points", "size"), pts=("points", "sum"),
@@ -116,7 +98,7 @@ def zone_shares(prof: pd.DataFrame) -> pd.DataFrame:
 
 def conversion_by_zone(prof_def: pd.DataFrame,
                        zone_value: pd.DataFrame) -> pd.DataFrame:
-    """Split the conversion half of a defense into the five zones it happened in.
+    """Split the conversion half of a defence into the five zones it happened in.
 
     Each zone contributes (its share of the attempts faced) x (how far below
     league its conversion was) x (what a make there is worth), which sums back to
@@ -143,5 +125,5 @@ def opponent_accuracy(conv: pd.DataFrame) -> pd.DataFrame:
 
 
 def rank_within_season(d: pd.DataFrame, col: str, ascending: bool = True) -> pd.Series:
-    """Rank 1 is the best defense, so lower is better by default."""
+    """Rank 1 is the best defence, so lower is better by default."""
     return d.groupby("season")[col].rank(ascending=ascending, method="min")
